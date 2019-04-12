@@ -52,8 +52,8 @@ LightmapSettings:
     m_AlbedoBoost: 1
     m_TemporalCoherenceThreshold: 1
     m_EnvironmentLightingMode: 0
-    m_EnableBakedLightmaps: 1
-    m_EnableRealtimeLightmaps: 1
+    m_EnableBakedLightmaps: 0
+    m_EnableRealtimeLightmaps: 0
   m_LightmapEditorSettings:
     serializedVersion: 10
     m_Resolution: 2
@@ -140,6 +140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e78eca55f7cb79418bde5385f0462ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GridPrefab: {fileID: 1456478224040824, guid: 37296214d12cd9840b16451eb471d0d7, type: 2}
 --- !u!4 &440131073
 Transform:
   m_ObjectHideFlags: 0
