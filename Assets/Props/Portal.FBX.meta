@@ -16,7 +16,12 @@ ModelImporter:
     3300002: Box003
     4300000: Box002
     4300002: Box003
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 01 - Default
+    second: {fileID: 2100000, guid: 15ff54290954e8745baba405325680dc, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

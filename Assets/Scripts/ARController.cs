@@ -20,7 +20,8 @@ public class ARController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		//Check ARCore
+
+		//Check ARCore session status.
         if(Session.Status != SessionStatus.Tracking)
         {
             return;
