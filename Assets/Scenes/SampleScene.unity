@@ -141,6 +141,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GridPrefab: {fileID: 1456478224040824, guid: 37296214d12cd9840b16451eb471d0d7, type: 2}
+  Portal: {fileID: 1964602097}
+  ARCamera: {fileID: 821412120}
 --- !u!4 &440131073
 Transform:
   m_ObjectHideFlags: 0
@@ -351,3 +353,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DeviceCameraDirection: 0
   SessionConfig: {fileID: 11400000, guid: c1325cdd3c858e44ba441c73d6e876cd, type: 2}
+--- !u!1 &1964602097 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 100004, guid: 6a66c1f6155a2594e99df9e06e80175f,
+    type: 3}
+  m_PrefabInternal: {fileID: 508348979}
