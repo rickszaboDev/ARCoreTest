@@ -41,7 +41,7 @@ public class ARController : MonoBehaviour {
 
         //Check if user touches the screen.
         Touch touch;
-        if (Input.touchCount < 1 || (touch = Input.GetTouch(0)).phase != TouchPhase.Began || !Input.GetKeyDown(KeyCode.A))
+        if (Input.touchCount < 1 || (touch = Input.GetTouch(0)).phase != TouchPhase.Began)
         {
             return;
         }
