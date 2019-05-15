@@ -35,20 +35,24 @@ public class CubeStartSet : MonoBehaviour {
 	public CubesManager manager;
 
 	void Start () {
+		var _cubes = new List<GameObject>();
+		
 		for(int i = 0; i < cubesOccupation.Length; i++){
 			for(int j = 0; j < cubesOccupation[i].Length; j++){
 				if(cubesOccupation[i][j] > 0){
 					GameObject newCube = Instantiate(cubeElement[cubesOccupation[i][j]]) as GameObject;
 					CubeController newCubeController = newCube.GetComponent<CubeController>();
-					newCubeController.currentPos = new int[] {i, j};
+					newCubeController.curPos = new int[] {i, j};
+
+					_cubes.Add(newCube);
 				} else if(cubesOccupation[i][j] < 0){
 					GameObject newCube = Instantiate(cubeElement[3]) as GameObject;
 					CubeController newCubeController = newCube.GetComponent<CubeController>();
-					newCubeController.currentPos = new int[] {i, j};
+					newCubeController.curPos = new int[] {i, j};
 				}
 			}
 			
-			manager.CubeStart(cubesOccupation);
+			manager.CubeStart(cubesOccupation, _cubes);
 		}
 	}
 }

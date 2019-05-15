@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CubesManager : MonoBehaviour {
 
-	int[][] cubesOccupation = {
+	private int[][] cubesOccupation = {
 		new int[] { // Level 0
 			0, 0, 0, 0,
 			0, 0, 0, 0,
@@ -30,87 +30,28 @@ public class CubesManager : MonoBehaviour {
 			0, 0, 0, 0
 		},
 	};
-	GameObject cubeSelected;
-
-	bool hasSetCubes = false;
-	public void CubeStart(int[][] cubesOccupation){
+	private GameObject cubeSelected;
+	private List<GameObject> cubeList = new List<GameObject>();
+	private bool hasSetCubes = false;
+	public static bool isCubesInteractable = true;
+	public void CubeStart(int[][] cubesOccupation, List<GameObject> cubeList){
+		this.cubeList = cubeList;
 		this.cubesOccupation = cubesOccupation;
 		this.hasSetCubes = true;
 	}
 
-	public void checkSurrondings(Direction.Cube direction, GameObject targetCube)
+	public void SendCubeToNewPos(Direction.Cube direction, GameObject targetCube)
 	{
-		if(!this.hasSetCubes) return;
-
+		if(!this.hasSetCubes || !CubesManager.isCubesInteractable) 
+		{
+			Debug.Log("CubesManager is blocking the cubes.");
+			return;
+		}
+		
 		this.cubeSelected = targetCube;
 		CubeController targetController = targetCube.GetComponent<CubeController>();
-		int[] targetPos = targetController.currentPos;
-
-		targetController.MoveCube(setCubeNewPos(targetPos, direction));
-	}
-
-	int[] setCubeNewPos(int[] currentPos, Direction.Cube _direction){
-		int[] nextPos = (int[])currentPos.Clone();
-		int directionValue = 0;
-		bool canMove = false;
-		
-		int cubeID = cubesOccupation[currentPos[0]][currentPos[1]];
-
-		if(_direction == Direction.Cube.Left){
-			canMove = currentPos[1] % 4 > 0 || (currentPos[1] - 1) == 0;
-			directionValue = -1;
-		}
-		if(_direction == Direction.Cube.Right){
-			canMove = (currentPos[1] + 1) % 4 != 0 || currentPos[1] < 3;
-			directionValue = 1;
-		}
-		if(_direction == Direction.Cube.Back){
-			canMove = currentPos[1] + 4 < 16;
-			directionValue = 4;
-		}
-		if(_direction == Direction.Cube.Front){
-			canMove = currentPos[1] - 4 >= 0;
-			directionValue = -4;
-		}
-
-		if(canMove){ 
-			if(currentPos[0] < 3){ // Check if there is some block over the current selected
-				if(cubesOccupation[currentPos[0] + 1][currentPos[1]] > 0){
-					canMove = false;
-				}
-				if(cubesOccupation[currentPos[0]][currentPos[1]] > 1){
-					canMove = false;
-				}
-			}
-		}
-
-		if(canMove){
-			if(cubesOccupation[currentPos[0]][currentPos[1] + directionValue] <= 0){
-				if(currentPos[0] >= 1){
-					if(cubesOccupation[currentPos[0] - 1][currentPos[1] + directionValue] > 0) { // Se existir cubo no nivel inferior move
-						nextPos[1] += directionValue;
-					} else if (currentPos[0] >= 2) {
-						if (cubesOccupation[currentPos[0] - 2][currentPos[1] + directionValue] > 0){ // se existe
-							nextPos[0] += -1;
-							nextPos[1] += directionValue;
-						}
-					} else if(currentPos[0] - 1 == 0){
-						nextPos[0] += -1;
-						nextPos[1] += directionValue;
-					}
-				} else if(currentPos[0] == 0){
-					nextPos[1] += directionValue;
-				}
-			} else if(nextPos[0] < 3) {
-				if(cubesOccupation[currentPos[0] + 1][currentPos[1] + directionValue] <= 0){
-					nextPos[1] += directionValue;
-					nextPos[0] += 1;
-				}
-			}
-		}
-
-		cubesOccupation[currentPos[0]][currentPos[1]] = 0;
-		cubesOccupation[nextPos[0]][nextPos[1]] = cubeID;
-		return nextPos;
+		Dictionary<string, int> newCubePos = targetController.GetCubeNewPos(cubesOccupation, direction);
+		cubesOccupation[newCubePos["newX"]][newCubePos["newY"]] = newCubePos["cubeID"];
+		cubesOccupation[newCubePos["x"]][newCubePos["y"]] = 0;
 	}
 }
