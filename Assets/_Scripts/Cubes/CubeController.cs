@@ -9,6 +9,9 @@ public class CubeController : MonoBehaviour {
 	private bool changePosition = false;
 	private Animation anim;
 	private Direction.Cube goingUpOrDown = Direction.Cube.None;
+	public CubesManager manager;
+	public Vector3 myNextPos;
+	protected Direction.Cube lastDirection;
 	void Start()
 	{
 		anim = GetComponent<Animation>();
@@ -28,8 +31,9 @@ public class CubeController : MonoBehaviour {
 		changePosition = true;
 		setAnimationTo(pos, this.goingUpOrDown);
 	}
-	protected void setAnimationTo(int[] pos, Direction.Cube upOrDown){
-		Vector3 nextPos = CubePosition.boxPositions[pos[0]][pos[1]].position;
+	protected void setAnimationTo(int[] pos, Direction.Cube upOrDown)
+	{
+		myNextPos = CubePosition.boxPositions[pos[0]][pos[1]].position;
 		AnimationCurve curveX, curveY, curveZ;
 
 		AnimationClip clip = new AnimationClip();
@@ -38,16 +42,16 @@ public class CubeController : MonoBehaviour {
 		var oldPos = transform.position;
 		if(upOrDown == Direction.Cube.Up)
 		{
-			clip = setCustomKeyFramesToClip(clip, oldPos.x, oldPos.x, nextPos.x, "localPosition.x");
-			clip = setCustomKeyFramesToClip(clip, oldPos.z, oldPos.z, nextPos.z, "localPosition.z");
-			clip = setCustomKeyFramesToClip(clip, oldPos.y, nextPos.y, nextPos.y, "localPosition.y");
+			clip = setCustomKeyFramesToClip(clip, oldPos.x, oldPos.x, myNextPos.x, "localPosition.x");
+			clip = setCustomKeyFramesToClip(clip, oldPos.z, oldPos.z, myNextPos.z, "localPosition.z");
+			clip = setCustomKeyFramesToClip(clip, oldPos.y, myNextPos.y, myNextPos.y, "localPosition.y");
 			Debug.Log("Up");	
 		} 
 		else 
 		{
-			clip = setCustomKeyFramesToClip(clip, oldPos.x, nextPos.x, nextPos.x, "localPosition.x");
-			clip = setCustomKeyFramesToClip(clip, oldPos.z, nextPos.z, nextPos.z, "localPosition.z");
-			clip = setCustomKeyFramesToClip(clip, oldPos.y, oldPos.y, nextPos.y, "localPosition.y");			
+			clip = setCustomKeyFramesToClip(clip, oldPos.x, myNextPos.x, myNextPos.x, "localPosition.x");
+			clip = setCustomKeyFramesToClip(clip, oldPos.z, myNextPos.z, myNextPos.z, "localPosition.z");
+			clip = setCustomKeyFramesToClip(clip, oldPos.y, oldPos.y, myNextPos.y, "localPosition.y");			
 			Debug.Log("Down");
 		}
 		AnimationEvent animEv = new AnimationEvent();
@@ -57,12 +61,13 @@ public class CubeController : MonoBehaviour {
 
 		goingUpOrDown = Direction.Cube.None;
 
-		CubesManager.isCubesInteractable = false;
+		manager.ToggleInteraction(false);
 
 		anim.AddClip(clip, clip.name);
 		anim.Play(clip.name);
 	}
-	protected AnimationClip setCustomKeyFramesToClip(AnimationClip clip, float pos1, float pos2, float pos3, string coords ){
+	protected AnimationClip setCustomKeyFramesToClip(AnimationClip clip, float pos1, float pos2, float pos3, string coords )
+	{
 		Keyframe[] keys;
 		keys = new Keyframe[3];
 		keys[0] = new Keyframe(0.0f, pos1);
@@ -78,9 +83,9 @@ public class CubeController : MonoBehaviour {
 			Vector3 nextPos = CubePosition.boxPositions[curPos[0]][curPos[1]].position;		
 			transform.position = nextPos;
 			changePosition = false;
-			Debug.Log("Entered in sendtonew");
 	}
-	protected bool checkBoundaries(int[] currentPos, Direction.Cube _direction){
+	protected bool checkBoundaries(int[] currentPos, Direction.Cube _direction)
+	{
 		bool canMove = false;
 
 		if(_direction == Direction.Cube.Left){
@@ -98,7 +103,8 @@ public class CubeController : MonoBehaviour {
 
 		return !canMove;
 	}
-	protected bool checkBlockOverTarget(int[][] cubesOccupation, int[] _currentPos){
+	protected bool checkBlockOverTarget(int[][] cubesOccupation, int[] _currentPos)
+	{
 		if(_currentPos[0] < 3){ // Check if there is some block over the current selected
 			if(cubesOccupation[_currentPos[0] + 1][_currentPos[1]] > 0){
 				return true;
@@ -109,7 +115,8 @@ public class CubeController : MonoBehaviour {
 		}
 		return false;
 	}
-	protected int setDirectionValue(Direction.Cube _direction){
+	protected int setDirectionValue(Direction.Cube _direction)
+	{
 		var directionValue = 0;
 		
 		if(_direction == Direction.Cube.Left){
@@ -143,6 +150,7 @@ public class CubeController : MonoBehaviour {
 		int[] nextPos = (int[])this.curPos.Clone();
 		var directionValue = setDirectionValue(_direction);
 		Direction.Cube _goingUpOrDown = Direction.Cube.None;
+		lastDirection = _direction;
 
 		if(cubesOccupation[this.curPos[0]][this.curPos[1] + directionValue] <= 0)
 		{ 				
@@ -189,7 +197,8 @@ public class CubeController : MonoBehaviour {
 		this.goingUpOrDown = _goingUpOrDown;
 		return _value;
 	}
-	public void OnAnimationEnded(){
-		CubesManager.isCubesInteractable = true;
+	public virtual void OnAnimationEnded()
+	{
+		manager.ToggleInteraction(true);
 	}
 }

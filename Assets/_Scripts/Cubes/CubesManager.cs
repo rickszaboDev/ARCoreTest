@@ -48,10 +48,16 @@ public class CubesManager : MonoBehaviour {
 		}
 
 		this.cubeSelected = targetCube;
+		Debug.Log(targetCube.name);
 		CubeController targetController = targetCube.GetComponent<CubeController>();
+		targetController.manager = this;
 		Dictionary<string, int> newCubePos = targetController.GetCubeNewPos(cubesOccupation, direction);
 		cubesOccupation[newCubePos["newX"]][newCubePos["newY"]] = newCubePos["cubeID"];
 		cubesOccupation[newCubePos["x"]][newCubePos["y"]] = 0;
 		targetController.MoveCube(new int[] { newCubePos["newX"], newCubePos["newY"] });
+	}
+
+	public void ToggleInteraction(bool b){
+		InputController.isInputAllow = b;
 	}
 }

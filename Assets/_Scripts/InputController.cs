@@ -11,9 +11,12 @@ public class InputController : MonoBehaviour
 	private GameObject cubeSelected;
 	private Vector3 initPointerPos;
 	private Vector3 finalPointerPos;
-	private bool isInputAllow = true;
-	
-	// Update is called once per frame
+	public static bool isInputAllow = true;
+	GameObject player;
+	void Start()
+	{
+		player = GameObject.FindWithTag("Player");
+	}
 	void Update () 
 	{
 		if(!isInputAllow) {
@@ -70,9 +73,19 @@ public class InputController : MonoBehaviour
  			RaycastHit hit; 
  			Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition); 
  			if ( Physics.Raycast (ray,out hit,100.0f)){ 
- 				if(hit.transform!=null) {
+ 				if(hit.transform!=null && hit.collider.tag == "Cube") 
+				{
 					this.cubeSelected = hit.transform.gameObject;
+					Debug.Log(hit.collider.name);
+				} 
+				else
+				{
+					this.cubeSelected = player;
 				}
  			}
+			else
+			{
+				this.cubeSelected = player;
+			}
 	}
 }
