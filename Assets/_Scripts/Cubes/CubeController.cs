@@ -6,8 +6,9 @@ public class CubeController : MonoBehaviour {
 
 	[HideInInspector] public int[] curPos = {0, 0};
 
-	private bool changePosition = true;
+	private bool changePosition = false;
 	private Animation anim;
+	private Direction.Cube goingUpOrDown = Direction.Cube.None;
 	void Start()
 	{
 		anim = GetComponent<Animation>();
@@ -16,19 +17,18 @@ public class CubeController : MonoBehaviour {
 	{
 		if(changePosition)	this.sendToNewPos();
 	}
-	void OnTriggerEnter(Collider col)
-	{
-		if(col.tag == "Exit")
-		{
-		}
-	}
-	private void moveCube(int[] pos, Direction.Cube upOrDown)
+	public void SetUpCube(int[] pos)
 	{
 		this.curPos = pos;
 		changePosition = true;
-		setAnimationTo(pos, upOrDown);
 	}
-	private void setAnimationTo(int[] pos, Direction.Cube upOrDown){
+	public virtual void MoveCube(int[] pos)
+	{
+		this.curPos = pos;
+		changePosition = true;
+		setAnimationTo(pos, this.goingUpOrDown);
+	}
+	protected void setAnimationTo(int[] pos, Direction.Cube upOrDown){
 		Vector3 nextPos = CubePosition.boxPositions[pos[0]][pos[1]].position;
 		AnimationCurve curveX, curveY, curveZ;
 
@@ -50,12 +50,19 @@ public class CubeController : MonoBehaviour {
 			clip = setCustomKeyFramesToClip(clip, oldPos.y, oldPos.y, nextPos.y, "localPosition.y");			
 			Debug.Log("Down");
 		}
+		AnimationEvent animEv = new AnimationEvent();
+		animEv.time = 2.0f;
+		animEv.functionName = "OnAnimationEnded";
+		clip.events = new AnimationEvent[] {animEv};
+
+		goingUpOrDown = Direction.Cube.None;
+
+		CubesManager.isCubesInteractable = false;
 
 		anim.AddClip(clip, clip.name);
 		anim.Play(clip.name);
 	}
-
-	private AnimationClip setCustomKeyFramesToClip(AnimationClip clip, float pos1, float pos2, float pos3, string coords ){
+	protected AnimationClip setCustomKeyFramesToClip(AnimationClip clip, float pos1, float pos2, float pos3, string coords ){
 		Keyframe[] keys;
 		keys = new Keyframe[3];
 		keys[0] = new Keyframe(0.0f, pos1);
@@ -66,13 +73,14 @@ public class CubeController : MonoBehaviour {
 		_clip.SetCurve("", typeof(Transform), coords, curve);
 		return _clip;
 	}
-	private void sendToNewPos()
+	protected void sendToNewPos()
 	{
 			Vector3 nextPos = CubePosition.boxPositions[curPos[0]][curPos[1]].position;		
 			transform.position = nextPos;
 			changePosition = false;
+			Debug.Log("Entered in sendtonew");
 	}
-	private bool checkBoundaries(int[] currentPos, Direction.Cube _direction){
+	protected bool checkBoundaries(int[] currentPos, Direction.Cube _direction){
 		bool canMove = false;
 
 		if(_direction == Direction.Cube.Left){
@@ -90,7 +98,7 @@ public class CubeController : MonoBehaviour {
 
 		return !canMove;
 	}
-	private bool checkBlockOverTarget(int[][] cubesOccupation, int[] _currentPos){
+	protected bool checkBlockOverTarget(int[][] cubesOccupation, int[] _currentPos){
 		if(_currentPos[0] < 3){ // Check if there is some block over the current selected
 			if(cubesOccupation[_currentPos[0] + 1][_currentPos[1]] > 0){
 				return true;
@@ -101,7 +109,7 @@ public class CubeController : MonoBehaviour {
 		}
 		return false;
 	}
-	private int setDirectionValue(Direction.Cube _direction){
+	protected int setDirectionValue(Direction.Cube _direction){
 		var directionValue = 0;
 		
 		if(_direction == Direction.Cube.Left){
@@ -134,7 +142,7 @@ public class CubeController : MonoBehaviour {
 		
 		int[] nextPos = (int[])this.curPos.Clone();
 		var directionValue = setDirectionValue(_direction);
-		Direction.Cube goingUpOrDown = Direction.Cube.None;
+		Direction.Cube _goingUpOrDown = Direction.Cube.None;
 
 		if(cubesOccupation[this.curPos[0]][this.curPos[1] + directionValue] <= 0)
 		{ 				
@@ -150,14 +158,14 @@ public class CubeController : MonoBehaviour {
 					{
 						nextPos[0] += -1;														
 						nextPos[1] += directionValue;
-						goingUpOrDown = Direction.Cube.Down;											
+						_goingUpOrDown = Direction.Cube.Down;											
 					}
 				} 
 				else if(this.curPos[0] - 1 == 0)
 				{															
 					nextPos[0] += -1;
 					nextPos[1] += directionValue;
-					goingUpOrDown = Direction.Cube.Down;
+					_goingUpOrDown = Direction.Cube.Down;
 				}
 			} 
 			else if(this.curPos[0] == 0)
@@ -171,14 +179,17 @@ public class CubeController : MonoBehaviour {
 			{
 				nextPos[1] += directionValue;
 				nextPos[0] += 1;
-				goingUpOrDown = Direction.Cube.Up;
+				_goingUpOrDown = Direction.Cube.Up;
 			}
 		}
 		
 		_value["newX"] = nextPos[0];
 		_value["newY"] = nextPos[1];
 
-		moveCube(nextPos, goingUpOrDown);
+		this.goingUpOrDown = _goingUpOrDown;
 		return _value;
+	}
+	public void OnAnimationEnded(){
+		CubesManager.isCubesInteractable = true;
 	}
 }

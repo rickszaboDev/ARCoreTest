@@ -42,13 +42,12 @@ public class CubeStartSet : MonoBehaviour {
 				if(cubesOccupation[i][j] > 0){
 					GameObject newCube = Instantiate(cubeElement[cubesOccupation[i][j]]) as GameObject;
 					CubeController newCubeController = newCube.GetComponent<CubeController>();
-					newCubeController.curPos = new int[] {i, j};
-
+					newCubeController.SetUpCube(new int[] {i, j});
 					_cubes.Add(newCube);
 				} else if(cubesOccupation[i][j] < 0){
 					GameObject newCube = Instantiate(cubeElement[3]) as GameObject;
 					CubeController newCubeController = newCube.GetComponent<CubeController>();
-					newCubeController.curPos = new int[] {i, j};
+					newCubeController.SetUpCube(new int[] {i, j});
 				}
 			}
 			

@@ -52,5 +52,6 @@ public class CubesManager : MonoBehaviour {
 		Dictionary<string, int> newCubePos = targetController.GetCubeNewPos(cubesOccupation, direction);
 		cubesOccupation[newCubePos["newX"]][newCubePos["newY"]] = newCubePos["cubeID"];
 		cubesOccupation[newCubePos["x"]][newCubePos["y"]] = 0;
+		targetController.MoveCube(new int[] { newCubePos["newX"], newCubePos["newY"] });
 	}
 }
