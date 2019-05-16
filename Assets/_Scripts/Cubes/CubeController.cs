@@ -7,7 +7,7 @@ public class CubeController : MonoBehaviour {
 	[HideInInspector] public int[] curPos = {0, 0};
 
 	private bool changePosition = true;
-	Animation anim;
+	private Animation anim;
 	void Start()
 	{
 		anim = GetComponent<Animation>();
@@ -22,48 +22,50 @@ public class CubeController : MonoBehaviour {
 		{
 		}
 	}
-	private void moveCube(int[] pos)
+	private void moveCube(int[] pos, Direction.Cube upOrDown)
 	{
 		this.curPos = pos;
 		changePosition = true;
-		
-		setAnimationTo(this.curPos);
+		setAnimationTo(pos, upOrDown);
 	}
-
-	private void setAnimationTo(int[] pos){
+	private void setAnimationTo(int[] pos, Direction.Cube upOrDown){
 		Vector3 nextPos = CubePosition.boxPositions[pos[0]][pos[1]].position;
 		AnimationCurve curveX, curveY, curveZ;
 
 		AnimationClip clip = new AnimationClip();
 		clip.legacy = true;
 
-		Keyframe[] keys;
-		keys = new Keyframe[3];
-		keys[0] = new Keyframe(0.0f, transform.position.x);
-		keys[1] = new Keyframe(1.0f, transform.position.x);
-		keys[2] = new Keyframe(2.0f, nextPos.x);
-		curveX = new AnimationCurve(keys);
-		clip.SetCurve("", typeof(Transform), "localPosition.x", curveX);
-
-		keys = new Keyframe[3];
-		keys[0] = new Keyframe(0.0f, transform.position.z);
-		keys[1] = new Keyframe(1.0f, transform.position.z);
-		keys[2] = new Keyframe(2.0f, nextPos.z);
-		curveZ = new AnimationCurve(keys);
-		clip.SetCurve("", typeof(Transform), "localPosition.z", curveZ);
-
-		keys = new Keyframe[3];
-		keys[0] = new Keyframe(0.0f, transform.position.y);
-		keys[1] = new Keyframe(1.0f, nextPos.y);
-		keys[2] = new Keyframe(2.0f, nextPos.y);
-		curveY = new AnimationCurve(keys);
-		clip.SetCurve("", typeof(Transform), "localPosition.y", curveY);
+		var oldPos = transform.position;
+		if(upOrDown == Direction.Cube.Up)
+		{
+			clip = setCustomKeyFramesToClip(clip, oldPos.x, oldPos.x, nextPos.x, "localPosition.x");
+			clip = setCustomKeyFramesToClip(clip, oldPos.z, oldPos.z, nextPos.z, "localPosition.z");
+			clip = setCustomKeyFramesToClip(clip, oldPos.y, nextPos.y, nextPos.y, "localPosition.y");
+			Debug.Log("Up");	
+		} 
+		else 
+		{
+			clip = setCustomKeyFramesToClip(clip, oldPos.x, nextPos.x, nextPos.x, "localPosition.x");
+			clip = setCustomKeyFramesToClip(clip, oldPos.z, nextPos.z, nextPos.z, "localPosition.z");
+			clip = setCustomKeyFramesToClip(clip, oldPos.y, oldPos.y, nextPos.y, "localPosition.y");			
+			Debug.Log("Down");
+		}
 
 		anim.AddClip(clip, clip.name);
 		anim.Play(clip.name);
 	}
 
-
+	private AnimationClip setCustomKeyFramesToClip(AnimationClip clip, float pos1, float pos2, float pos3, string coords ){
+		Keyframe[] keys;
+		keys = new Keyframe[3];
+		keys[0] = new Keyframe(0.0f, pos1);
+		keys[1] = new Keyframe(1.0f, pos2);
+		keys[2] = new Keyframe(2.0f, pos3);
+		var curve = new AnimationCurve(keys);
+		AnimationClip _clip = clip;
+		_clip.SetCurve("", typeof(Transform), coords, curve);
+		return _clip;
+	}
 	private void sendToNewPos()
 	{
 			Vector3 nextPos = CubePosition.boxPositions[curPos[0]][curPos[1]].position;		
@@ -132,6 +134,7 @@ public class CubeController : MonoBehaviour {
 		
 		int[] nextPos = (int[])this.curPos.Clone();
 		var directionValue = setDirectionValue(_direction);
+		Direction.Cube goingUpOrDown = Direction.Cube.None;
 
 		if(cubesOccupation[this.curPos[0]][this.curPos[1] + directionValue] <= 0)
 		{ 				
@@ -146,13 +149,15 @@ public class CubeController : MonoBehaviour {
 					if (cubesOccupation[this.curPos[0] - 2][this.curPos[1] + directionValue] > 0)
 					{
 						nextPos[0] += -1;														
-						nextPos[1] += directionValue;											
+						nextPos[1] += directionValue;
+						goingUpOrDown = Direction.Cube.Down;											
 					}
 				} 
 				else if(this.curPos[0] - 1 == 0)
 				{															
 					nextPos[0] += -1;
 					nextPos[1] += directionValue;
+					goingUpOrDown = Direction.Cube.Down;
 				}
 			} 
 			else if(this.curPos[0] == 0)
@@ -166,13 +171,14 @@ public class CubeController : MonoBehaviour {
 			{
 				nextPos[1] += directionValue;
 				nextPos[0] += 1;
+				goingUpOrDown = Direction.Cube.Up;
 			}
 		}
 		
 		_value["newX"] = nextPos[0];
 		_value["newY"] = nextPos[1];
 
-		moveCube(nextPos);
+		moveCube(nextPos, goingUpOrDown);
 		return _value;
 	}
 }

@@ -39,7 +39,6 @@ public class InputController : MonoBehaviour
 			this._direction = Direction.Cube.None;	//Resets the direction.
 		}
 	}
-
   private Direction.Cube CheckDirection()
   {	
 		finalPointerPos	= Input.mousePosition;

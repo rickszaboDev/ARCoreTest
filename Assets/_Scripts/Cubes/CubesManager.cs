@@ -39,7 +39,6 @@ public class CubesManager : MonoBehaviour {
 		this.cubesOccupation = cubesOccupation;
 		this.hasSetCubes = true;
 	}
-
 	public void SendCubeToNewPos(Direction.Cube direction, GameObject targetCube)
 	{
 		if(!this.hasSetCubes || !CubesManager.isCubesInteractable) 
@@ -47,7 +46,7 @@ public class CubesManager : MonoBehaviour {
 			Debug.Log("CubesManager is blocking the cubes.");
 			return;
 		}
-		
+
 		this.cubeSelected = targetCube;
 		CubeController targetController = targetCube.GetComponent<CubeController>();
 		Dictionary<string, int> newCubePos = targetController.GetCubeNewPos(cubesOccupation, direction);
